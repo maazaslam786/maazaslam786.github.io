@@ -52,7 +52,8 @@
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
   .eyebrow{font-family:var(--ff-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 4s linear infinite}
+  @keyframes shine { to { background-position: 200% center; } }
 
   header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
     background:color-mix(in srgb,var(--bg) 65%,transparent);border-bottom:1px solid var(--line)}
@@ -276,11 +277,11 @@
             <div><span>Location</span><b>YoC Office, Karachi</b></div>
           </div>
         </div>
-        <div style="display:grid;gap:16px;grid-template-rows:1fr 1fr">
-          <figure class="award-photo reveal" style="margin:0;position:relative;min-height:0">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <figure class="award-photo reveal" style="margin:0;position:relative;aspect-ratio:16/9;min-height:unset">
             <img src="assets/award-ceremony.jpg" alt="Muhammad Maaz Aslam receiving the YoC Emerging Talent award">
           </figure>
-          <figure class="award-photo reveal" style="margin:0;position:relative;min-height:0">
+          <figure class="award-photo reveal" style="margin:0;position:relative;aspect-ratio:16/9;min-height:unset">
             <img src="assets/Trophy-certi-on-back-optimized.jpg" alt="YoC Emerging Talent Trophy and Certificate">
           </figure>
         </div>

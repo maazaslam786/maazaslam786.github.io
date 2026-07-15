@@ -7,16 +7,16 @@
 <meta name="description" content="Muhammad Maaz Aslam Sonaly — AI Engineer & Forward Deployed Engineer at YoC (Your Online Conversation). Distributed AI pipelines, fine-tuned LLMs, and the full-stack platform that runs them.">
 <style>
   :root{
-    --bg:#131019; --bg2:#191521; --surface:#1e1930; --surface2:#241d38;
-    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.14);
-    --ink:#EEEAF6; --muted:#A79FBC; --faint:#79728f;
-    --pink:#E0489F; --cyan:#27B6D6; --green:#84CB4C;
-    --accent:var(--cyan); --accent-ink:#0a1418;
-    --grad:linear-gradient(100deg,var(--pink),var(--cyan) 55%,var(--green));
-    --maxw:1120px; --radius:16px;
-    --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 24px 60px -30px rgba(0,0,0,.7);
-    --ff-sans:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-    --ff-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --bg:#0a0812; --bg2:#110e1b; --surface:#161224; --surface2:#1c172d;
+    --line:rgba(255,255,255,.05); --line2:rgba(255,255,255,.1);
+    --ink:#ffffff; --muted:#a49eb8; --faint:#6c6682;
+    --pink:#ff2a85; --cyan:#00f0ff; --green:#39ff14;
+    --accent:var(--cyan); --accent-ink:#000000;
+    --grad:linear-gradient(110deg,var(--pink),var(--cyan) 50%,var(--green));
+    --maxw:1120px; --radius:20px;
+    --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 30px 60px -20px rgba(0,0,0,.9);
+    --ff-sans:"IBM Plex Sans","Inter",system-ui,-apple-system,sans-serif;
+    --ff-mono:"IBM Plex Mono",ui-monospace,monospace;
   }
   :root[data-theme="light"]{
     --bg:#F6F4FB; --bg2:#efeaf7; --surface:#ffffff; --surface2:#f4f0fb;
@@ -40,9 +40,11 @@
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
   body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
     background:
-      radial-gradient(60vw 50vh at 82% -8%, rgba(224,72,159,.16), transparent 60%),
-      radial-gradient(55vw 55vh at 5% 8%, rgba(39,182,214,.14), transparent 60%),
-      radial-gradient(50vw 60vh at 60% 108%, rgba(132,203,76,.10), transparent 60%)}
+      radial-gradient(50vw 50vh at 80% 10%, rgba(255,42,133,.12), transparent 60%),
+      radial-gradient(60vw 60vh at 10% 20%, rgba(0,240,255,.1), transparent 60%),
+      radial-gradient(50vw 50vh at 50% 90%, rgba(57,255,20,.08), transparent 60%);
+    animation: pulseBg 15s ease-in-out infinite alternate;}
+  @keyframes pulseBg { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
   a{color:inherit;text-decoration:none}
   h1,h2,h3,h4{margin:0;text-wrap:balance;line-height:1.12;letter-spacing:-.02em;font-weight:600}
   p{margin:0}
@@ -52,8 +54,8 @@
   .eyebrow{font-family:var(--ff-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
   .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-  header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
-    background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line)}
+  header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    background:color-mix(in srgb,var(--bg) 65%,transparent);border-bottom:1px solid var(--line)}
   .nav-in{display:flex;align-items:center;gap:20px;height:62px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
   .brand .mark{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;
@@ -61,11 +63,13 @@
   .nav-links{display:flex;gap:26px;margin-left:auto;font-size:14.5px;color:var(--muted)}
   .nav-links a{transition:color .2s}.nav-links a:hover{color:var(--ink)}
   .nav-actions{display:flex;align-items:center;gap:10px}
-  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;padding:9px 15px;border-radius:10px;
-    border:1px solid var(--line2);color:var(--ink);background:var(--surface);transition:transform .15s,border-color .2s;cursor:pointer}
-  .btn:hover{transform:translateY(-1px);border-color:var(--accent)}
-  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600}
-  .btn.primary:hover{filter:brightness(1.08)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;padding:10px 18px;border-radius:12px;
+    border:1px solid var(--line2);color:var(--ink);background:var(--surface);
+    transition:all .3s cubic-bezier(.25,.8,.25,1);cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .btn:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,240,255,.15);color:#fff}
+  .btn:active{transform:translateY(0) scale(.97)}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border:none;font-weight:600;box-shadow:0 4px 15px rgba(0,240,255,.3)}
+  .btn.primary:hover{box-shadow:0 8px 25px rgba(0,240,255,.5);background:#fff;color:#000}
   .icon-btn{width:38px;height:38px;padding:0;justify-content:center}
   @media(max-width:760px){.nav-links{display:none}}
 
@@ -146,8 +150,10 @@
   .chipn{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg2);font-size:11.5px;text-align:center}
 
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:transform .18s,border-color .2s}
-  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:all .4s cubic-bezier(.25,.8,.25,1);position:relative;overflow:hidden}
+  .card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 20px 40px -10px rgba(0,240,255,.15)}
+  .card::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right, rgba(0,240,255,.1), transparent 70%);opacity:0;transition:opacity .4s}
+  .card:hover::after{opacity:1}
   .card .kicker{font-family:var(--ff-mono);font-size:11.5px;color:var(--faint);letter-spacing:.06em}
   .card h4{font-size:1.14rem;margin:9px 0 8px}.card p{font-size:14px;color:var(--muted)}
   .card .stack{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}

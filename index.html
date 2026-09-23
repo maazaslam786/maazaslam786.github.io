@@ -204,6 +204,7 @@
       <a href="#overview">Overview</a>
       <a href="#ai">AI Systems</a>
       <a href="#platform">Platform</a>
+      <a href="#voip">VoIP</a>
       <a href="#work">Work</a>
       <a href="#toolbox">Toolbox</a>
       <a href="#contact">Contact</a>
@@ -256,7 +257,7 @@
   <section id="overview">
     <div class="wrap">
       <div class="sec-head"><span class="sec-num">01 · Overview</span><h2>From prompts to production-grade AI.</h2></div>
-      <p class="lead reveal">I joined <b>YoC</b> as an AI Engineer in July 2025 and now work as a <b>Forward Deployed Engineer</b>, shipping a suite of systems end to end (architecture through deployment and operations) for YoC and its brands <b>Flightcatchers</b> and <b>Polani Global Technologies</b>. My work spans applied AI (fine-tuned LLMs, RAG, Gemini analytics), the fault-tolerant backends behind it, and the CI/CD, authentication, and Kubernetes platform that ship it all securely to production.</p>
+      <p class="lead reveal">I joined <b>YoC</b> as an AI Engineer in July 2025 and now work as a <b>Forward Deployed Engineer</b>, shipping a suite of systems end to end (architecture through deployment and operations) for YoC and its brands <b>Flightcatchers</b> and <b>Polani Global Technologies</b>. My work spans applied AI (fine-tuned LLMs, RAG, Gemini analytics), the fault-tolerant backends behind it, and the CI/CD, authentication, and Kubernetes platform that ship it all securely to production. I also own the telephony and network layer: production Asterisk/FreePBX contact-centre systems, Linux server administration, and firewall/edge security in regulated, bank-facing deployments.</p>
       <div class="brandrow reveal">
         <div class="bt"><img src="assets/yoc.png" alt="Your Online Conversation"><small>EMPLOYER</small></div>
         <div class="bt"><img src="assets/flightcatchers.png" alt="Flightcatchers"><small>BRAND</small></div>
@@ -346,6 +347,7 @@
             <li>Traefik ingress + automatic TLS (cert-manager, Let's Encrypt DNS-01 via Cloudflare)</li>
             <li>GitHub Actions → GHCR images → Argo CD auto-sync; batch worker as a CronJob</li>
             <li>Origin hidden behind Cloudflare, firewall locked to Cloudflare ranges, secrets in-cluster</li>
+            <li>Right-sized compute and cut monthly infrastructure spend roughly 55% by consolidating onto self-managed infrastructure</li>
           </ul>
         </div>
         <div class="diagram reveal" aria-hidden="true">
@@ -372,10 +374,62 @@
     </div>
   </section>
 
+  <!-- VOIP / INFRASTRUCTURE FEATURE -->
+  <section id="voip">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">05 · VoIP &amp; Infrastructure</span><h2>Telephony systems that survive production.</h2></div>
+      <p class="lead reveal">Production experience across enterprise telephony, Linux systems, network security, and containerised cloud infrastructure, delivered in regulated environments including banking and contact-centre deployments.</p>
+      <div class="feature" style="margin-top:34px">
+        <div class="reveal">
+          <div class="tag">SIP · TELEPHONY · ASTERISK</div>
+          <h3>Agent → IVR Handoff</h3>
+          <p>Built a production feature for a live Asterisk/FreePBX contact-centre system letting a live agent drop a caller back into the IVR at a specific menu step, triggered either from the agent's CRM softphone over a REST API or a DTMF feature code on the agent's handset.</p>
+          <ul>
+            <li>Resume path built on Asterisk Stasis channel events: detects channel-left-bridge, then re-enters the caller at a configured IVR node via a gateway service</li>
+            <li>Shipped as a config-gated module in its own namespace so the core IVR engine files stayed untouched, a hard requirement for a system already live in production</li>
+            <li>Integrated with an external CRM vendor's API, reconciling a stable per-caller interaction ID against a per-agent session ID that changes on transfer</li>
+            <li>Built a WAV ↔ GSM transcoding endpoint for telephony-compatible prompts and recordings</li>
+          </ul>
+        </div>
+        <div class="diagram reveal" aria-hidden="true">
+          <div class="flow">
+            <div class="node"><span class="b"></span>Agent trigger <small>REST API call or DTMF code</small></div>
+            <div class="arrow">↓</div>
+            <div class="node"><span class="b"></span>Asterisk Stasis <small>channel-left-bridge event</small></div>
+            <div class="arrow">↓ gateway service</div>
+            <div class="node"><span class="b"></span>IVR re-entry <small>caller resumes at configured node</small></div>
+            <div class="arrow">↓</div>
+            <div class="node"><span class="b"></span>WAV ↔ GSM transcoding <small>prompts &amp; recordings</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="cards" style="margin-top:32px">
+        <div class="card reveal">
+          <div class="kicker">SIP · INTEROP</div>
+          <h4>PJSIP &amp; SIP Interop</h4>
+          <p>Configured and debugged PJSIP extensions across TLS, TCP and UDP transports, including certificate binding and TLS 1.2 enforcement. Traced codec and media-encryption negotiation failures, including DTLS/WebRTC config offered to a native SIP client, across Sangoma, Linphone and WebRTC softphone clients using SIP signalling analysis and openssl handshake testing.</p>
+          <div class="stack"><span class="tagx">PJSIP</span><span class="tagx">SIP/RTP</span><span class="tagx">WebRTC</span><span class="tagx">openssl</span></div>
+        </div>
+        <div class="card reveal">
+          <div class="kicker">SYSTEMS · LINUX</div>
+          <h4>Linux Systems Administration</h4>
+          <p>Administered Debian-based PBX servers outside vendor-supported base images, running Apache2 and HAProxy. Owned the full TLS certificate lifecycle, including wildcard installs, chain/PFX bundling, and forced reinstalls across dual listeners, and diagnosed fail2ban jail and subnet-whitelist misconfigurations.</p>
+          <div class="stack"><span class="tagx">Debian</span><span class="tagx">Apache2</span><span class="tagx">HAProxy</span><span class="tagx">fail2ban</span></div>
+        </div>
+        <div class="card reveal">
+          <div class="kicker">NETWORK · SECURITY</div>
+          <h4>Networking &amp; Security</h4>
+          <p>Diagnosed a FortiGate rule forwarding SIP only over UDP, leaving SIP-over-TLS unreachable, and worked across SIP, RTP, TCP, UDP and TLS with NAT traversal and multi-subnet media-path troubleshooting. Hardened Cloudflare-fronted origins and applied WAF/edge concepts in bank-facing deployments.</p>
+          <div class="stack"><span class="tagx">FortiGate</span><span class="tagx">Cloudflare</span><span class="tagx">WAF</span><span class="tagx">NAT</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- WORK / SYSTEMS -->
   <section id="work">
     <div class="wrap">
-      <div class="sec-head"><span class="sec-num">05 · Systems I've Shipped</span><h2>The product suite.</h2></div>
+      <div class="sec-head"><span class="sec-num">06 · Systems I've Shipped</span><h2>The product suite.</h2></div>
       <p class="lead reveal">A connected set of production applications for YoC and its brands, each built solo from database to UI to deployment.</p>
       <div class="cards" style="margin-top:28px">
         <div class="card reveal">
@@ -433,7 +487,7 @@
   <!-- ALSO BUILT -->
   <section id="also">
     <div class="wrap">
-      <div class="sec-head"><span class="sec-num">06 · Also Built</span><h2>Research &amp; beyond the day job.</h2></div>
+      <div class="sec-head"><span class="sec-num">07 · Also Built</span><h2>Research &amp; beyond the day job.</h2></div>
       <div class="cards">
         <div class="card reveal">
           <div class="kicker">RESEARCH · ASR</div>
@@ -460,7 +514,7 @@
   <!-- TOOLBOX -->
   <section id="toolbox">
     <div class="wrap">
-      <div class="sec-head"><span class="sec-num">07 · Toolbox</span><h2>What I build with.</h2></div>
+      <div class="sec-head"><span class="sec-num">08 · Toolbox</span><h2>What I build with.</h2></div>
       <div class="logostrip reveal">
         <div class="logo-tile"><img src="assets/claude.png" alt="Claude"></div>
         <div class="logo-tile"><img src="assets/chatgpt.png" alt="ChatGPT"></div>
@@ -480,8 +534,10 @@
         <div class="toolrow reveal"><div class="lab">Backend</div><div class="v">Node.js, Express, NestJS, Prisma, Laravel, .NET 8, REST, WebSockets, OpenAPI / Zod</div></div>
         <div class="toolrow reveal"><div class="lab">Data</div><div class="v">PostgreSQL, Supabase, MySQL, Google BigQuery, pgvector, Parquet / GCS</div></div>
         <div class="toolrow reveal"><div class="lab">DevOps / Cloud</div><div class="v">Kubernetes (k3s), Argo CD, Docker, GitHub Actions, GHCR, Traefik, cert-manager, Google Cloud, Cloudflare, AWS S3, Linux</div></div>
-        <div class="toolrow reveal"><div class="lab">Security</div><div class="v">Google OAuth 2.0 / OIDC, JWT, RBAC, row-level security, DMARC / DKIM / SPF deliverability</div></div>
-        <div class="toolrow reveal"><div class="lab">Integrations</div><div class="v">PayPro payments, Google Drive &amp; Business Profile APIs, webhooks, Pub/Sub</div></div>
+        <div class="toolrow reveal"><div class="lab">Telephony</div><div class="v">Asterisk, FreePBX, PJSIP, SIP, RTP, WebRTC</div></div>
+        <div class="toolrow reveal"><div class="lab">Systems</div><div class="v">Debian, Apache2, HAProxy, fail2ban, systemd, openssl</div></div>
+        <div class="toolrow reveal"><div class="lab">Security</div><div class="v">Google OAuth 2.0 / OIDC, JWT, RBAC, row-level security, DMARC / DKIM / SPF deliverability, TLS/SSL, FortiGate</div></div>
+        <div class="toolrow reveal"><div class="lab">Integrations</div><div class="v">PayPro payments, Google Drive &amp; Business Profile APIs, webhooks, Pub/Sub, Postman</div></div>
       </div>
     </div>
   </section>
@@ -489,7 +545,7 @@
   <!-- CONTACT -->
   <section id="contact" class="contact">
     <div class="wrap">
-      <span class="sec-num">08 · Contact</span>
+      <span class="sec-num">09 · Contact</span>
       <h2 style="margin-top:14px">Let's build something intelligent.</h2>
       <p>Open to AI-engineering and full-stack roles, remote or Karachi-based. The fastest way to reach me is email.</p>
       <div class="cta-row">

@@ -324,12 +324,12 @@
         <div class="reveal">
           <div class="tag">KUBERNETES · GITOPS · CLOUD</div>
           <h3>Self-hosted k3s + Argo CD platform</h3>
-          <p>I migrated the company's apps off shared cPanel hosting onto a single hardened Google Cloud VM, and built a <b>self-healing GitOps platform</b> around them, so deployment became a <b>git push</b> instead of manual server work, with automatic sync, self-healing, and per-app isolation.</p>
+          <p>I migrated the company's apps off shared cPanel hosting onto hardened cloud infrastructure I own end to end, and built a <b>self-healing GitOps platform</b> around them, so deployment became a <b>git push</b> instead of manual server work, with automatic sync, self-healing, and per-app isolation.</p>
           <ul>
             <li>k3s chosen over managed Kubernetes / Docker Swarm on cost &amp; reliability</li>
-            <li>Traefik ingress + automatic TLS (cert-manager, Let's Encrypt DNS-01 via Cloudflare)</li>
-            <li>GitHub Actions → GHCR images → Argo CD auto-sync; batch worker as a CronJob</li>
-            <li>Origin hidden behind Cloudflare, firewall locked to Cloudflare ranges, secrets in-cluster</li>
+            <li>Traefik ingress with automatic certificate issuance and renewal via cert-manager</li>
+            <li>GitHub Actions build → private container registry → Argo CD continuous delivery, plus scheduled batch workers</li>
+            <li>Defence-in-depth at the edge: least-privilege ingress rules and centrally managed secrets</li>
             <li>Right-sized compute and cut monthly infrastructure spend roughly 55% by consolidating onto self-managed infrastructure</li>
           </ul>
         </div>
@@ -339,17 +339,17 @@
             <div class="arrow">↓</div>
             <div class="node"><span class="b"></span>GitHub Actions <small>multi-stage Docker build</small></div>
             <div class="arrow">↓ push image</div>
-            <div class="node"><span class="b"></span>GHCR <small>container registry</small></div>
+            <div class="node"><span class="b"></span>Container registry <small>private</small></div>
             <div class="arrow">↓ Argo CD auto-sync</div>
             <div class="cluster">
-              <div class="ct">k3s cluster · Google Cloud VM</div>
+              <div class="ct">k3s cluster · hardened host</div>
               <div class="node"><span class="b"></span>Traefik ingress · cert-manager TLS</div>
               <div class="cluster-row">
                 <div class="chipn">CRM</div><div class="chipn">Reconciliation</div>
                 <div class="chipn">Call Analyzer</div><div class="chipn">+ more apps</div>
               </div>
             </div>
-            <div class="arrow">↓ behind Cloudflare</div>
+            <div class="arrow">↓ behind edge proxy + WAF</div>
             <div class="node"><span class="b"></span>Live · self-healing · TLS everywhere</div>
           </div>
         </div>
@@ -390,19 +390,19 @@
         <div class="card reveal">
           <div class="kicker">SIP · INTEROP</div>
           <h4>PJSIP &amp; SIP Interop</h4>
-          <p>Configured and debugged PJSIP extensions across TLS, TCP and UDP transports, including certificate binding and TLS 1.2 enforcement. Traced codec and media-encryption negotiation failures, including DTLS/WebRTC config offered to a native SIP client, across Sangoma, Linphone and WebRTC softphone clients using SIP signalling analysis and openssl handshake testing.</p>
+          <p>Configured and debugged PJSIP extensions across encrypted and unencrypted transports, including certificate binding and enforcement of modern TLS. Traced codec and media-encryption negotiation failures across desk-phone and WebRTC softphone clients using SIP signalling analysis and TLS handshake testing.</p>
           <div class="stack"><span class="tagx">PJSIP</span><span class="tagx">SIP/RTP</span><span class="tagx">WebRTC</span><span class="tagx">openssl</span></div>
         </div>
         <div class="card reveal">
           <div class="kicker">SYSTEMS · LINUX</div>
           <h4>Linux Systems Administration</h4>
-          <p>Administered Debian-based PBX servers outside vendor-supported base images, running Apache2 and HAProxy. Owned the full TLS certificate lifecycle, including wildcard installs, chain/PFX bundling, and forced reinstalls across dual listeners, and diagnosed fail2ban jail and subnet-whitelist misconfigurations.</p>
+          <p>Administered Debian-based PBX servers on a custom web and load-balancing stack. Owned the full TLS certificate lifecycle, including wildcard installs, chain/PFX bundling, and forced reinstalls across dual listeners, and tuned intrusion-prevention and access-control rules.</p>
           <div class="stack"><span class="tagx">Debian</span><span class="tagx">Apache2</span><span class="tagx">HAProxy</span><span class="tagx">fail2ban</span></div>
         </div>
         <div class="card reveal">
           <div class="kicker">NETWORK · SECURITY</div>
           <h4>Networking &amp; Security</h4>
-          <p>Diagnosed a FortiGate rule forwarding SIP only over UDP, leaving SIP-over-TLS unreachable, and worked across SIP, RTP, TCP, UDP and TLS with NAT traversal and multi-subnet media-path troubleshooting. Hardened Cloudflare-fronted origins and applied WAF/edge concepts in bank-facing deployments.</p>
+          <p>Resolved SIP transport and media-path faults across firewall and NAT boundaries, working over SIP, RTP, TCP, UDP and TLS with multi-subnet troubleshooting. Hardened proxied origins and applied WAF/edge controls in bank-facing deployments.</p>
           <div class="stack"><span class="tagx">FortiGate</span><span class="tagx">Cloudflare</span><span class="tagx">WAF</span><span class="tagx">NAT</span></div>
         </div>
       </div>
@@ -454,13 +454,13 @@
         <div class="card reveal">
           <div class="kicker">DATA INTEGRITY · ANALYTICS</div>
           <h4>Company-Wide Data Layer (CDP)</h4>
-          <p>Diagnosed and fixed a broken customer-data pipeline that had been overstating reported revenue by roughly 80%. Traced the fault to source, rebuilt the pipeline against the canonical sales ledger, and delivered a penny-exact source-to-screen reconciliation pack for sign-off.</p>
+          <p>Diagnosed a cross-app customer-data platform whose loader was ingesting the same sale from three overlapping source systems, inflating every revenue and lifetime-value figure on its dashboards. Rebuilt the loader to deduplicate against the canonical sales ledger, then delivered a penny-exact source-to-screen reconciliation pack for sign-off.</p>
           <div class="stack"><span class="tagx">BigQuery</span><span class="tagx">Python ETL</span><span class="tagx">PostgreSQL</span><span class="tagx">Reconciliation</span></div>
         </div>
         <div class="card reveal">
           <div class="kicker">SECURITY · DATA PROTECTION</div>
           <h4>Org-Wide Security Audit</h4>
-          <p>Led a security audit across the company's full repository estate, surfacing critical vulnerabilities including a plaintext payment-data storage path and an over-privileged API key exposing tens of thousands of customer records, and closed the highest-severity findings.</p>
+          <p>Led an organisation-wide security review across the company's full repository estate, delivering a prioritised report on data-exposure and access-control risk and driving remediation of the highest-severity findings with the owning teams.</p>
           <div class="stack"><span class="tagx">OWASP</span><span class="tagx">Postgres RLS</span><span class="tagx">Supabase</span><span class="tagx">Key Rotation</span></div>
         </div>
       </div>

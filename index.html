@@ -18,8 +18,8 @@
 <meta property="og:image" content="https://maazaslam786.github.io/assets/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Muhammad Maaz Aslam — AI & Forward Deployed Engineer portfolio">
-<meta property="og:site_name" content="Muhammad Maaz Aslam — Portfolio">
+<meta property="og:image:alt" content="Muhammad Maaz Aslam · AI & Forward Deployed Engineer portfolio">
+<meta property="og:site_name" content="Muhammad Maaz Aslam · Portfolio">
 <meta property="og:locale" content="en_GB">
 
 <!-- Twitter / X Card -->
@@ -27,7 +27,7 @@
 <meta name="twitter:title" content="Muhammad Maaz Aslam · AI & Forward Deployed Engineer">
 <meta name="twitter:description" content="Distributed AI pipelines, fine-tuned LLMs with RAG, and the full-stack platform that runs them. Forward Deployed Engineer at YoC.">
 <meta name="twitter:image" content="https://maazaslam786.github.io/assets/og-card.png">
-<meta name="twitter:image:alt" content="Muhammad Maaz Aslam — AI & Forward Deployed Engineer portfolio">
+<meta name="twitter:image:alt" content="Muhammad Maaz Aslam · AI & Forward Deployed Engineer portfolio">
 
 <!-- Additional SEO -->
 <meta name="author" content="Muhammad Maaz Aslam Sonaly">
@@ -360,18 +360,20 @@
         <div class="reveal">
           <div class="tag">DISTRIBUTED SYSTEMS · GEMINI AI</div>
           <h3>Customer Call Sentiment &amp; QC Analyzer</h3>
-          <p>Call recordings land in Google Drive and need transcribing, scoring, and storing: fast, reliably, and never twice. I built a <b>DB-coordinated distributed worker system</b> that processes <b>500+ hour-long calls in roughly 10 minutes</b>, turning hundreds of hours of manual review into structured, queryable insight.</p>
+          <p>Call recordings arrive all day and need transcribing, scoring, and storing: fast, reliably, and never twice. I built a <b>DB-coordinated distributed worker system</b> that processes <b>500+ hour-long calls in roughly 10 minutes</b>, turning hundreds of hours of manual review into structured, queryable insight.</p>
           <ul>
             <li>Dynamically scalable workers with adjustable throughput; concurrency-safe by construction</li>
             <li>Fault-tolerant, horizontally scalable: batched polling &amp; parallel async execution</li>
             <li>Gemini 2.5 multimodal: audio → transcript → strict-JSON QC scorecard mapped to the call-centre SOP</li>
             <li>Escalation detection with email + Google Chat alerts</li>
+            <li>Re-platformed ingestion off third-party cloud sync onto a collector at the recording source, removing a shared-quota dependency from the critical path</li>
+            <li>Tuned worker concurrency against measured results, lifting steady-state throughput of the ingest stage from roughly 42 to 186 recordings an hour</li>
           </ul>
         </div>
         <div class="diagram reveal" aria-hidden="true">
           <div class="flow">
-            <div class="node"><span class="b"></span>Call recording <small>→ Google Drive</small></div>
-            <div class="arrow">↓ webhook</div>
+            <div class="node"><span class="b"></span>Call recording <small>→ source-side collector</small></div>
+            <div class="arrow">↓ enqueue</div>
             <div class="node"><span class="b"></span>Job queue <small>Postgres · atomic claim</small></div>
             <div class="arrow">↓ workers (scale-out)</div>
             <div class="node"><span class="b"></span>Gemini multimodal <small>transcribe + analyse</small></div>
@@ -399,6 +401,7 @@
             <li>Traefik ingress with automatic certificate issuance and renewal via cert-manager</li>
             <li>GitHub Actions build → private container registry → Argo CD continuous delivery, plus scheduled batch workers</li>
             <li>Defence-in-depth at the edge: least-privilege ingress rules and centrally managed secrets</li>
+            <li>Workload-to-workload isolation rolled out and then verified service by service against live traffic, rather than assumed from configuration</li>
             <li>Right-sized compute and cut monthly infrastructure spend roughly 55% by consolidating onto self-managed infrastructure</li>
           </ul>
         </div>
@@ -493,8 +496,9 @@
         <div class="card reveal">
           <div class="kicker">RECONCILIATION · FRAUD</div>
           <h4>DD Accountings / Recocheck</h4>
-          <p>Normalises 8 airline/GDS report formats into one canonical ticket key and flags variances against the accounting system to the penny (£0.01), with a daily-totals engine and an admin fraud-review board.</p>
-          <div class="stack"><span class="tagx">React</span><span class="tagx">Express</span><span class="tagx">Supabase</span><span class="tagx">BigQuery</span></div>
+          <p>Normalises 8 airline/GDS report formats into one canonical ticket key and flags variances against the accounting system to the penny (£0.01), with a daily-totals engine and an admin fraud-review board. Added a fourth live GDS feed in Nov 2026, the first to carry refunds, which meant handling signed amounts and a settlement date window so a refund stops reading as a variance.</p>
+          <p>Extended into finance reporting: a debtors ledger with ageing buckets and per-segment splits that reports net exposure rather than gross, and a margin-review module built to the finance team's own lead-sheet columns, so flagged bookings arrive in the shape they already work in.</p>
+          <div class="stack"><span class="tagx">React</span><span class="tagx">Express</span><span class="tagx">Supabase</span><span class="tagx">BigQuery</span><span class="tagx">Reporting</span></div>
         </div>
         <div class="card reveal">
           <div class="kicker">CRM · SALES</div>
@@ -506,6 +510,7 @@
           <div class="kicker">EMAIL · AI AUTOMATION</div>
           <h4>Feedback &amp; Review Platform</h4>
           <p>Post-flight NPS + Google-review generation with AI-assisted email automation (cutting template code ~90%) and real deliverability engineering: DMARC strict alignment, RFC 8058 one-click unsubscribe, throttled duplicate-safe queue.</p>
+          <p>Then measured it properly and found the reporting itself wrong: a response rate counting rows instead of people, NPS scored on the wrong bands, and two clocks that disagreed. Rebuilt the funnel on cohorts with a stage-by-stage invariant, so no stage can report more than the one above it, and the real drop-off became visible for the first time.</p>
           <div class="stack"><span class="tagx">Node 24</span><span class="tagx">React</span><span class="tagx">Resend/SES</span><span class="tagx">OpenAPI</span></div>
         </div>
         <div class="card reveal">
@@ -524,7 +529,28 @@
           <div class="kicker">DATA INTEGRITY · ANALYTICS</div>
           <h4>Company-Wide Data Layer (CDP)</h4>
           <p>Diagnosed a cross-app customer-data platform whose loader was ingesting the same sale from three overlapping source systems, inflating every revenue and lifetime-value figure on its dashboards. Rebuilt the loader to deduplicate against the canonical sales ledger, then delivered a penny-exact source-to-screen reconciliation pack for sign-off.</p>
+          <p>Now also the reporting surface over it: a per-app people and ownership roster assembled from the systems of record, plus centralised access reporting, so questions about who uses what are answered from data instead of recollection.</p>
           <div class="stack"><span class="tagx">BigQuery</span><span class="tagx">Python ETL</span><span class="tagx">PostgreSQL</span><span class="tagx">Reconciliation</span></div>
+        </div>
+        <div class="card reveal">
+          <div class="kicker">PLATFORM · LIVE MIGRATION</div>
+          <h4>Cross-Region Database Consolidation</h4>
+          <p>The same CRM data lived in two regional databases behind two deployments of one app, and the two drifted. I consolidated reads and writes onto a single database, retired the second deployment, and left a scheduled sync maintaining the historical copy, which by design no longer tracks it row for row.</p>
+          <p>Three defects surfaced only under real traffic, never in tests: array-typed columns compared wrongly, deleted records resurrecting on the next sync, and a refresh loop racing its own reload. Matching row counts turned out to prove nothing about whether the sync was correct.</p>
+          <div class="stack"><span class="tagx">PostgreSQL</span><span class="tagx">Scheduled workers</span><span class="tagx">Live cutover</span></div>
+        </div>
+        <div class="card reveal">
+          <div class="kicker">PERFORMANCE · RESILIENCE</div>
+          <h4>Bulk Import Queue Latency</h4>
+          <p>A bulk-import service was stalling its own queue. Moving the CPU-bound parsing off the request path and onto worker threads took queue lag from <b>12.7 seconds to 23 milliseconds</b>.</p>
+          <p>The crashes that remained looked like the same fault but were memory exhaustion, not blocking. Measuring peak usage instead of assuming gave the workload a correct size and the team a published row ceiling to plan imports against.</p>
+          <div class="stack"><span class="tagx">Node worker threads</span><span class="tagx">Profiling</span><span class="tagx">Queueing</span></div>
+        </div>
+        <div class="card reveal">
+          <div class="kicker">OPERATIONS · INTERNAL TOOLS</div>
+          <h4>App Directory &amp; Ops Hub</h4>
+          <p>One internal place that answers what the estate actually runs, with an app directory the operations team edits themselves. Built inside a tool staff already sign in to rather than shipped as one more login, after an embedded version proved it could never authenticate inside a frame.</p>
+          <div class="stack"><span class="tagx">React</span><span class="tagx">Node</span><span class="tagx">RBAC</span></div>
         </div>
         <div class="card reveal">
           <div class="kicker">SECURITY · DATA PROTECTION</div>

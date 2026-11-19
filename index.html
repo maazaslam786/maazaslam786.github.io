@@ -100,6 +100,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  /* Armed before first paint so animated elements never flash in and out.
+     If GSAP has not taken over within 2.5s (CDN blocked, slow link), the
+     hidden states are dropped and the page is simply static. */
+  (function(){
+    var r=document.documentElement;
+    if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    r.classList.add('js-motion');
+    setTimeout(function(){if(!window.__motionReady)r.classList.remove('js-motion')},2500);
+  })();
+</script>
 <style>
   :root{
     --bg:#0A1020; --bg2:#0C1425; --surface:#111A2E; --surface2:#16213A;
@@ -152,8 +163,12 @@
   .brand .mark{width:30px;height:30px;border-radius:9px;background:var(--accent);display:grid;place-items:center;
     color:var(--accent-ink);font-family:var(--ff-mono);font-weight:700;font-size:13px;box-shadow:var(--shadow)}
   .nav-links{display:flex;gap:26px;margin-left:auto;font-size:14.5px;color:var(--muted)}
-  .nav-links a{transition:color .2s}.nav-links a:hover{color:var(--ink)}
+  .nav-links a{transition:color .2s}.nav-links a:hover,.nav-links a:focus-visible{color:var(--ink)}
   .nav-actions{display:flex;align-items:center;gap:10px}
+  .nav-actions .menu-btn{display:none}
+  /* Scroll position, coloured by the domain of the section you are in. */
+  .progress{position:absolute;left:0;bottom:-1px;height:2px;width:100%;transform:scaleX(0);transform-origin:0 50%;
+    background:var(--pcol,var(--signal));transition:background-color .45s ease}
   .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;padding:10px 18px;border-radius:12px;
     border:1px solid var(--line2);color:var(--ink);background:var(--surface);
     transition:border-color .2s ease,transform .2s ease;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.1)}
@@ -162,7 +177,19 @@
   .btn.primary{background:var(--ink);color:var(--bg);border:none;font-weight:600}
   .btn.primary:hover{background:var(--accent);color:var(--accent-ink);border-color:transparent}
   .icon-btn{width:38px;height:38px;padding:0;justify-content:center}
-  @media(max-width:760px){.nav-links{display:none}}
+  @media(max-width:900px){
+    .nav-actions .menu-btn{display:inline-flex}
+    .nav-links{position:fixed;left:0;right:0;top:62px;margin:0;flex-direction:column;gap:0;font-size:16px;
+      padding:4px clamp(20px,5vw,40px) 14px;background:var(--bg);border-bottom:1px solid var(--line);
+      box-shadow:var(--shadow);opacity:0;transform:translateY(-10px);pointer-events:none;
+      transition:opacity .18s ease,transform .18s ease}
+    .nav-links[data-open="true"]{opacity:1;transform:none;pointer-events:auto}
+    .nav-links a{padding:15px 2px;border-bottom:1px solid var(--line);color:var(--ink)}
+    .nav-links a:last-child{border-bottom:none}
+    /* comfortable touch targets */
+    .btn{padding:13px 20px;min-height:46px}
+    .icon-btn{width:46px;height:46px;padding:0}
+  }
 
   .hero{padding:clamp(56px,10vw,110px) 0 clamp(30px,5vw,52px);position:relative}
   .hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
@@ -181,7 +208,7 @@
   .identity span:nth-child(3)::before{background:var(--voice)}
   .identity span:nth-child(4)::before{background:var(--platform)}
   .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
-  .award-chip{display:inline-flex;align-items:center;gap:10px;margin-top:30px;padding:9px 15px;border-radius:999px;
+  .award-chip{display:inline-flex;align-items:center;gap:9px;margin-top:30px;padding:9px 15px;border-radius:999px;
     border:1px solid var(--line2);background:var(--surface);font-size:13.5px;color:var(--ink)}
   .award-chip .t{color:var(--muted)}.award-chip .dot{color:var(--accent)}
 
@@ -294,10 +321,38 @@
   .toolrow .v{font-size:14px;color:var(--muted)}
   @media(max-width:700px){.tools{grid-template-columns:1fr}}
 
+  /* 320px devices: the brand plus two 46px targets did not fit the bar */
+  @media(max-width:360px){
+    .nav-in{gap:10px}
+    .nav-actions{gap:6px}
+    .brand{font-size:14px}
+    .brand .mark{width:27px;height:27px;font-size:12px}
+    .icon-btn{width:42px;height:42px}
+  }
+
+  @media(max-width:560px){
+    .award-meta{grid-template-columns:1fr}
+    .toolrow{flex-direction:column;gap:6px}
+    .toolrow .lab{min-width:0;padding-top:0}
+    .cert .courses li{flex-direction:column;align-items:flex-start;gap:3px}
+    .cert{padding:22px}
+    .cluster-row{grid-template-columns:1fr}
+    .logo-tile{min-width:76px;height:54px;padding:10px 14px}
+  }
+
   .contact{text-align:center}
   .contact h2{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:700}
   .contact p{color:var(--muted);max-width:52ch;margin:16px auto 0}
   .contact .cta-row{justify-content:center}
+
+  /* Animated states apply only when JS is present and motion is welcome,
+     so the page is complete and visible if either is missing. */
+  .js-motion .sec-head::before{transform:scaleY(0);transform-origin:50% 0}
+  .js-motion .sec-head.in::before{transform:scaleY(1);transition:transform .55s cubic-bezier(.22,.7,.3,1)}
+  .js-motion .hero-step{opacity:0}
+  .js-motion #work .card,.js-motion #also .card{opacity:0}
+  /* .js-motion is never set when reduced motion is requested, so the
+     hidden states below simply never apply. */
   footer{padding:40px 0 60px;color:var(--faint);font-size:13px;text-align:center;border-top:1px solid var(--line)}
   footer a{color:var(--muted)}
 
@@ -308,7 +363,7 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="mark">MA</span> Muhammad&nbsp;Maaz</a>
-    <nav class="nav-links">
+    <nav class="nav-links" id="navLinks">
       <a href="#overview">Overview</a>
       <a href="#ai">AI Systems</a>
       <a href="#platform">Platform</a>
@@ -320,8 +375,10 @@
     </nav>
     <div class="nav-actions">
       <button class="btn icon-btn" id="themeBtn" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button>
+      <button class="btn icon-btn menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     </div>
   </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 </header>
 
 <main id="top">
@@ -329,17 +386,17 @@
   <!-- HERO -->
   <section class="hero" style="border-top:none">
     <div class="wrap">
-      <div class="eyebrow">AI Engineer · Forward Deployed Engineer · 2025 → present</div>
-      <h1>Engineering intelligent systems that run in production.</h1>
-      <p class="sub">I build applied-AI products end to end: <b>distributed AI pipelines, fine-tuned LLMs with RAG, and AI automation</b>, and I run the <b>full-stack platform</b> they live on. Currently a Forward Deployed &amp; AI Engineer at <b>YoC (Your Online Conversation)</b>, a UK travel business, where I've owned the AI systems and the delivery platform end to end, from architecture through to operations.</p>
-      <div class="identity">
+      <div class="eyebrow hero-step">AI Engineer · Forward Deployed Engineer · 2025 → present</div>
+      <h1 class="hero-step">Engineering intelligent systems that run in production.</h1>
+      <p class="sub hero-step">I build applied-AI products end to end: <b>distributed AI pipelines, fine-tuned LLMs with RAG, and AI automation</b>, and I run the <b>full-stack platform</b> they live on. Currently a Forward Deployed &amp; AI Engineer at <b>YoC (Your Online Conversation)</b>, a UK travel business, where I've owned the AI systems and the delivery platform end to end, from architecture through to operations.</p>
+      <div class="identity hero-step">
         <span>Muhammad Maaz Aslam Sonaly</span>
         <span>AI / Forward Deployed Engineer @ YoC</span>
         <span>Remote · UK</span>
         <span>Karachi, PK</span>
       </div>
-      <div class="award-chip"><span class="dot">★</span> <span class="t">Winner:</span>&nbsp;YoC <b>Emerging Talent</b>, AI Automation Dept · 2026</div>
-      <div class="cta-row">
+      <div class="award-chip hero-step"><span class="dot">★</span><span><span class="t">Winner:</span> YoC <b>Emerging Talent</b>, AI Automation Dept · 2026</span></div>
+      <div class="cta-row hero-step">
         <a class="btn primary" href="mailto:maazaslamtech@gmail.com">Get in touch</a>
         <a class="btn" href="resume.html">Resume</a>
         <a class="btn" href="https://github.com/maazaslam786" target="_blank" rel="noopener">GitHub</a>
@@ -739,6 +796,8 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js" integrity="sha384-3vCAhD+a3BOliP3QqjQINn6ZWiZxoqu0WFxX5ZQZgqekDZuSb1mJBrrLMmu94H8f" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/ScrollTrigger.min.js" integrity="sha384-H2WL1iy/jKQQ7MTHU2hskZKNHTYWWD/KgKE1vCNnaWY8An2ESTh23KN/fTp8XS3j" crossorigin="anonymous"></script>
 <script>
   (function(){
     var root=document.documentElement, btn=document.getElementById('themeBtn');
@@ -746,6 +805,17 @@
     try{var s=localStorage.getItem('mma-theme');if(s)set(s);}catch(e){}
     btn.addEventListener('click',function(){var cur=root.getAttribute('data-theme')||'dark';set(cur==='dark'?'light':'dark');});
   })();
+  /* Mobile menu */
+  (function(){
+    var btn=document.getElementById('menuBtn'), panel=document.getElementById('navLinks');
+    function close(){panel.removeAttribute('data-open');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open menu');btn.textContent='\u2630';}
+    function open(){panel.setAttribute('data-open','true');btn.setAttribute('aria-expanded','true');btn.setAttribute('aria-label','Close menu');btn.textContent='\u2715';}
+    btn.addEventListener('click',function(){panel.getAttribute('data-open')?close():open();});
+    panel.addEventListener('click',function(e){if(e.target.tagName==='A')close();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&panel.getAttribute('data-open')){close();btn.focus();}});
+    window.addEventListener('resize',function(){if(window.innerWidth>900)close();});
+  })();
+
   (function(){
     if(!('ontouchstart'in window))return;
     var targets=[].slice.call(document.querySelectorAll('.card, .btn'));
@@ -753,6 +823,84 @@
       el.addEventListener('touchstart',function(){el.classList.add('touch-active');},{passive:true});
       el.addEventListener('touchend',function(){setTimeout(function(){el.classList.remove('touch-active');},180);},{passive:true});
       el.addEventListener('touchcancel',function(){el.classList.remove('touch-active');},{passive:true});
+    });
+  })();
+</script>
+<script>
+  /* Scroll choreography.
+
+     Content visibility never depends on a library. A native scroll handler
+     decides what has entered view; GSAP only supplies the easing. If GSAP
+     fails to load, <head> drops .js-motion and the page is simply static.
+     ScrollTrigger drives the progress bar alone, which is decoration: if it
+     misbehaves the reader loses a 2px rule, never a project card. */
+  (function(){
+    var root=document.documentElement;
+    var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(!window.gsap){root.classList.remove('js-motion');return;}
+
+    var cards=[].slice.call(document.querySelectorAll('#work .card,#also .card'));
+    var heads=[].slice.call(document.querySelectorAll('.sec-head'));
+
+    if(reduce){
+      gsap.set(cards,{opacity:1,y:0});
+      gsap.set('.hero-step',{opacity:1,y:0});
+      heads.forEach(function(h){h.classList.add('in')});
+    }else{
+      window.__motionReady=1;
+
+      /* One orchestrated moment: the hero assembles itself, once, on load.
+         fromTo, not from: the CSS already sets opacity:0, and .from() would
+         read that as the END value and animate 0 to 0. */
+      gsap.timeline({defaults:{ease:'power3.out'}})
+        .fromTo('.hero-step',{opacity:0,y:18},{opacity:1,y:0,duration:.7,stagger:.075})
+        .fromTo('.pillar .bar',{scaleX:0},{scaleX:1,transformOrigin:'0 50%',duration:.5,stagger:.08},'-=0.35');
+
+      gsap.set(cards,{y:16});
+
+      var ticking=false;
+      function reveal(){
+        ticking=false;
+        var vh=window.innerHeight||root.clientHeight;
+        heads=heads.filter(function(h){
+          if(h.getBoundingClientRect().top>vh*0.9)return true;
+          h.classList.add('in'); return false;
+        });
+        cards=cards.filter(function(c){
+          if(c.getBoundingClientRect().top>vh*0.92)return true;
+          var row=[].indexOf.call(c.parentNode.children,c)%3;
+          gsap.to(c,{opacity:1,y:0,duration:.5,ease:'power2.out',delay:row*0.06});
+          return false;
+        });
+      }
+      function onScroll(){
+        if(ticking)return; ticking=true;
+        (window.requestAnimationFrame||setTimeout)(reveal,16);
+      }
+      window.addEventListener('scroll',onScroll,{passive:true});
+      window.addEventListener('resize',onScroll,{passive:true});
+      window.addEventListener('load',reveal);
+      reveal();
+      /* Last resort: nothing that carries content stays hidden. */
+      setTimeout(function(){
+        cards.forEach(function(c){gsap.set(c,{opacity:1,y:0})});
+        heads.forEach(function(h){h.classList.add('in')});
+        cards=[];heads=[];
+      },8000);
+    }
+
+    /* Scroll position, tinted by the domain of the section you are in.
+       Scrubbed, so it answers the reader's own scrolling rather than moving
+       on its own: it stays on under reduced motion. */
+    if(!window.ScrollTrigger)return;
+    gsap.registerPlugin(ScrollTrigger);
+    var bar=document.getElementById('progress');
+    gsap.to(bar,{scaleX:1,ease:'none',
+      scrollTrigger:{trigger:document.body,start:'top top',end:'bottom bottom',scrub:.3}});
+    document.querySelectorAll('section[data-domain]').forEach(function(sec){
+      var hue='var(--'+sec.getAttribute('data-domain')+')';
+      ScrollTrigger.create({trigger:sec,start:'top 50%',end:'bottom 50%',
+        onToggle:function(st){if(st.isActive)bar.style.setProperty('--pcol',hue)}});
     });
   })();
 </script>

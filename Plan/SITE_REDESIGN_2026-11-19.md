@@ -1,6 +1,7 @@
 # Portfolio redesign: colour system, typography, motion
 
-Status: **PHASE 1 BUILT, NOT PUSHED. PHASES 2 AND 3 PROPOSED ONLY, NOTHING BUILT.**
+Status: **PHASES 1 AND 3 BUILT AND LIVE. PHASE 2 (three.js hero) STILL PROPOSED, NOTHING BUILT.**
+Approved 2026-11-19: colours, GSAP, mobile. three.js was not named in the approval and is on hold.
 Date: 2026-11-19
 Brief (verbatim): "not much colors on my site design something new with claude skills something professional too"
 plus "3JS And Famous Front end librbrises idk what the names but they make dynamic scrolls"
@@ -104,9 +105,54 @@ behaves normally.
 This is the one place to spend boldness. Nobody else's portfolio hero is sound becoming
 meaning, and it is a true statement about the work rather than an abstract particle field.
 
-## 6. Phase 3 (PROPOSED, NOT BUILT): scroll choreography
+## 6. Phase 3 (BUILT, LIVE): scroll choreography
 
-Scope it to the hero pin and the waveform progress only. Not a reveal on every section.
+Scoped to three things, not a reveal on everything:
+
+1. One orchestrated page-load moment: the hero assembles itself once.
+2. Each section's domain-coloured rule draws itself in as it enters.
+3. The two card grids stagger, because they are scanned rather than read.
+
+Plus a scroll-progress rule in the header that takes the hue of the section you
+are currently in, which is the colour system explaining itself.
+
+### The safety property that shaped the implementation
+
+Content visibility never depends on a library. A native scroll handler decides
+what has entered view, GSAP only supplies the easing, and ScrollTrigger drives
+the progress bar alone. Three independent fallbacks:
+
+- GSAP fails to load: the `<head>` watchdog drops `.js-motion` after 2.5s and
+  every hidden state stops applying.
+- A reveal misfires: an 8s timeout shows everything outright.
+- Reduced motion: `.js-motion` is never set in the first place.
+
+There is no path where a project card stays invisible.
+
+### Bugs found and fixed while building this (all by measurement, not reading)
+
+| Bug | Symptom | Cause |
+| --- | --- | --- |
+| Hamburger showed on desktop | menu button visible at 1280px | `.btn{display:inline-flex}` declared after `.menu-btn{display:none}` at equal specificity, so source order won |
+| Nav overflowed 761px to 880px | page scrolled sideways | desktop nav needs ~860px, mobile breakpoint was 760px |
+| Choreography never ran, no error | nothing animated | the block landed inside `<script src="analytics.js">`, and a script with `src` ignores inline content |
+| Hero stayed invisible | opacity 0 forever | `.from({opacity:0})` against CSS `opacity:0` animates 0 to 0; needs `fromTo` |
+| Cards could stay blank | 14 project cards invisible | `ScrollTrigger.batch` debounces its flush; a fast scroll or anchor jump skips it |
+| 5px overflow at 320px | sideways scroll | brand plus two 46px targets exceeded the bar |
+
+### Verified by measurement
+
+- No horizontal overflow at 305, 325, 345, 375, 415, 753, 885, 985, 1265 px.
+- Mobile nav engages at or below 900px and not above.
+- Scripts load in order, GSAP before the code that reads it, both with SRI.
+- Hero timeline completes with all 6 steps visible.
+
+### Not verifiable in this environment
+
+Headless Chrome does not fire IntersectionObserver and its scroll emulation is
+inconsistent, so the reveal timing and the progress bar's colour changes were
+not confirmed by measurement. They are written so that any failure shows
+content rather than hiding it, but they want one look in a real browser.
 
 ## 7. Dependencies (REQUIRE APPROVAL per the 2026-11-06 vetted-dependencies policy)
 
@@ -150,9 +196,9 @@ homepage combined. Mitigation, required if phase 2 proceeds:
 
 Phases are independent so they do not disturb each other.
 
-1. **Colour, type, structure.** No dependencies. Reversible with one `git revert`.
-2. **three.js hero.** Needs the dependency decision above.
-3. **Scroll choreography.** Needs the dependency decision above.
+1. **Colour, type, structure.** No dependencies. LIVE.
+2. **three.js hero.** Not approved yet, nothing built.
+3. **Scroll choreography + mobile.** GSAP 3.15.1 pinned with SRI. LIVE.
 
 ## 9. Open questions
 

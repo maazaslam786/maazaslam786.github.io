@@ -131,6 +131,7 @@
     --ink:#0B1222; --muted:#4A5670; --faint:#626E87;
     --signal:#0B6FA4; --data:#0B7A5E; --voice:#9A5500; --platform:#6D3BCF;
     --accent:var(--signal); --accent-ink:#FFFFFF;
+    --g1:15%; --g2:12%; --g3:11%; --g4:9%;
     --shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 20px 50px -32px rgba(20,25,50,.14);
   }
   @media (prefers-color-scheme:light){
@@ -140,6 +141,7 @@
       --ink:#0B1222; --muted:#4A5670; --faint:#626E87;
       --signal:#0B6FA4; --data:#0B7A5E; --voice:#9A5500; --platform:#6D3BCF;
       --accent:var(--signal); --accent-ink:#FFFFFF;
+      --g1:15%; --g2:12%; --g3:11%; --g4:9%;
     }
   }
   *,*::before,*::after{box-sizing:border-box}
@@ -191,12 +193,33 @@
     .icon-btn{width:46px;height:46px;padding:0}
   }
 
-  .hero{padding:clamp(56px,10vw,110px) 0 clamp(30px,5vw,52px);position:relative}
-  .hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  .hero{padding:clamp(56px,10vw,110px) 0 clamp(118px,15vw,186px);position:relative;overflow:hidden}
+  .hero>.wrap{position:relative;z-index:2}
+  .hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
+    opacity:0;transition:opacity 1.1s ease}
+  .hero-canvas.on{opacity:1}
+  /* Two counter-drifting layers, so the hues mix instead of sliding as one
+     block. Transform only, so it is GPU-composited and cheap on a phone. */
+  .hero::before,.hero::after{content:"";position:absolute;inset:-18%;z-index:0;pointer-events:none;
+    will-change:transform}
+  .hero::before{
     background:
-      radial-gradient(48vw 52vh at 12% -12%, color-mix(in srgb, var(--signal) 24%, transparent), transparent 62%),
-      radial-gradient(42vw 46vh at 78% -6%, color-mix(in srgb, var(--platform) 20%, transparent), transparent 60%),
-      radial-gradient(38vw 40vh at 52% 18%, color-mix(in srgb, var(--data) 12%, transparent), transparent 64%)}
+      radial-gradient(42vw 46vh at 18% 8%, color-mix(in srgb, var(--signal) var(--g1,26%), transparent), transparent 64%),
+      radial-gradient(38vw 42vh at 76% 2%, color-mix(in srgb, var(--platform) var(--g2,22%), transparent), transparent 62%);
+    animation:drift-a 29s ease-in-out infinite alternate}
+  .hero::after{
+    background:
+      radial-gradient(40vw 44vh at 62% 30%, color-mix(in srgb, var(--data) var(--g3,18%), transparent), transparent 64%),
+      radial-gradient(34vw 36vh at 30% 42%, color-mix(in srgb, var(--voice) var(--g4,14%), transparent), transparent 62%);
+    animation:drift-b 41s ease-in-out infinite alternate}
+  @keyframes drift-a{
+    from{transform:translate3d(-3%,-2%,0) scale(1.02)}
+    to{transform:translate3d(5%,4%,0) scale(1.16)}}
+  @keyframes drift-b{
+    from{transform:translate3d(4%,3%,0) scale(1.14)}
+    to{transform:translate3d(-5%,-2%,0) scale(1.0)}}
+  @media (prefers-reduced-motion:reduce){
+    .hero::before,.hero::after{animation:none}}
   .hero .eyebrow{margin-bottom:22px}
   .hero h1{font-size:clamp(2.4rem,6.6vw,4.6rem);font-weight:700;letter-spacing:-.035em}
   .hero .sub{max-width:60ch;margin-top:22px;font-size:clamp(1rem,1.9vw,1.22rem);color:var(--muted)}
@@ -385,6 +408,7 @@
 
   <!-- HERO -->
   <section class="hero" style="border-top:none">
+    <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="eyebrow hero-step">AI Engineer · Forward Deployed Engineer · 2025 → present</div>
       <h1 class="hero-step">Engineering intelligent systems that run in production.</h1>
@@ -902,6 +926,103 @@
       ScrollTrigger.create({trigger:sec,start:'top 50%',end:'bottom 50%',
         onToggle:function(st){if(st.isActive)bar.style.setProperty('--pcol',hue)}});
     });
+  })();
+</script>
+<!-- Hero signal layer. Isolated in its own module script so that a parse
+     error here (dynamic import on an old browser) cannot take down the rest
+     of the page's JavaScript. Desktop only: three.js is 186KB gzipped and
+     the gradient behind it already carries the hero on a phone. -->
+<script type="module">
+  (async function(){
+    var cv=document.getElementById('heroCanvas');
+    if(!cv)return;
+    if(window.innerWidth<900)return;
+    if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    try{if(!document.createElement('canvas').getContext('webgl2')&&
+          !document.createElement('canvas').getContext('webgl'))return;}catch(e){return;}
+
+    var THREE;
+    try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.187.0/+esm');}
+    catch(e){return;}
+
+    var hero=cv.parentNode, W=hero.clientWidth, H=hero.clientHeight;
+    var renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
+    renderer.setSize(W,H,false);
+    var scene=new THREE.Scene();
+    var cam=new THREE.OrthographicCamera(-1,1,1,-1,0,10); cam.position.z=2;
+
+    /* A call becoming data: the bars start as a speech-like envelope and
+       resolve, as the hero scrolls away, into even blocks of equal height. */
+    var N=132, geo=new THREE.PlaneGeometry(1,1);
+    geo.translate(0,0.5,0);                 /* grow upward from the baseline */
+    var mat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.78});
+    var bars=new THREE.InstancedMesh(geo,mat,N);
+    bars.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(N*3),3);
+    scene.add(bars);
+
+    function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+    var hues=[];
+    function readHues(){
+      hues=['--signal','--data','--voice','--platform'].map(function(n){
+        return new THREE.Color(cssVar(n)||'#5CC8FF');});
+      paint();
+    }
+    function paint(){
+      var c=new THREE.Color();
+      for(var i=0;i<N;i++){
+        var t=i/(N-1)*(hues.length-1), a=hues[Math.floor(t)], b=hues[Math.min(Math.ceil(t),hues.length-1)];
+        c.copy(a).lerp(b,t-Math.floor(t));
+        bars.setColorAt(i,c);
+      }
+      if(bars.instanceColor)bars.instanceColor.needsUpdate=true;
+    }
+    readHues();
+    new MutationObserver(readHues).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+    window.matchMedia('(prefers-color-scheme:light)').addEventListener('change',readHues);
+
+    /* Deterministic speech-like envelope: a few detuned sines, so it reads
+       as a voice rather than as noise, and never needs an audio file. */
+    function envelope(x,t){
+      return Math.abs(Math.sin(x*7.1+t*0.9))*0.55
+           + Math.abs(Math.sin(x*17.3-t*1.4))*0.28
+           + Math.abs(Math.sin(x*3.3+t*0.5))*0.35;
+    }
+    var dummy=new THREE.Object3D(), progress=0, running=true;
+    function frame(ms){
+      if(!running)return;
+      requestAnimationFrame(frame);
+      var t=ms*0.001, half=W/2;
+      for(var i=0;i<N;i++){
+        var x=i/(N-1);
+        var speech=envelope(x*3.0,t)*0.23;
+        var data=0.040+((i%4)===0?0.060:0.020);      /* even, quantised blocks */
+        var h=speech+(data-speech)*progress;
+        var fade=Math.sin(Math.PI*x);                /* soften both ends */
+        dummy.position.set((x-0.5)*2.0,-1.0,0);   /* baseline: foot of the hero */
+        dummy.scale.set(1.35/N,Math.max(h*fade,0.004),1);
+        dummy.updateMatrix();
+        bars.setMatrixAt(i,dummy.matrix);
+      }
+      bars.instanceMatrix.needsUpdate=true;
+      mat.opacity=0.78*(1-progress*0.7);
+      renderer.render(scene,cam);
+    }
+    requestAnimationFrame(frame);
+    cv.classList.add('on');
+
+    function onScroll(){
+      var r=hero.getBoundingClientRect();
+      progress=Math.min(Math.max(-r.top/Math.max(r.height,1),0),1);
+      var visible=r.bottom>0&&r.top<window.innerHeight;
+      if(visible&&!running){running=true;requestAnimationFrame(frame);}
+      else if(!visible){running=false;}          /* stop the loop off-screen */
+    }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',function(){
+      W=hero.clientWidth;H=hero.clientHeight;renderer.setSize(W,H,false);onScroll();
+    },{passive:true});
+    onScroll();
   })();
 </script>
 <script defer src="assets/analytics.js"></script>

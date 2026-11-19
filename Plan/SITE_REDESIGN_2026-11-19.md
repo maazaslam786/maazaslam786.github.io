@@ -1,7 +1,6 @@
 # Portfolio redesign: colour system, typography, motion
 
-Status: **PHASES 1 AND 3 BUILT AND LIVE. PHASE 2 (three.js hero) STILL PROPOSED, NOTHING BUILT.**
-Approved 2026-11-19: colours, GSAP, mobile. three.js was not named in the approval and is on hold.
+Status: **ALL THREE PHASES BUILT AND LIVE** as of 2026-11-19.
 Date: 2026-11-19
 Brief (verbatim): "not much colors on my site design something new with claude skills something professional too"
 plus "3JS And Famous Front end librbrises idk what the names but they make dynamic scrolls"
@@ -94,7 +93,7 @@ Both families are on Google Fonts, so the existing preconnect stays.
 - Drop the blanket fade-up on every section. Scattered identical entrances are the thing
   that reads as machine-made. See phase 3 for what replaces it.
 
-## 5. Phase 2 (PROPOSED, NOT BUILT): the hero
+## 5. Phase 2 (BUILT, LIVE): the hero
 
 Concept: **a call becoming data.** The flagship system listens to thousands of phone calls
 and turns sound into structured analysis. In three.js that is a waveform ribbon that
@@ -104,6 +103,52 @@ behaves normally.
 
 This is the one place to spend boldness. Nobody else's portfolio hero is sound becoming
 meaning, and it is a true statement about the work rather than an abstract particle field.
+
+### As built
+
+132 instanced bars across the foot of the hero, coloured along the same spectrogram ramp
+the palette comes from, so the hero and the section rules are visibly the same system. The
+bar heights are a deterministic sum of detuned sines, which reads as speech rather than as
+noise and needs no audio file. As the hero scrolls away the envelope resolves into even
+quantised blocks and fades out: the call becoming data.
+
+It sits in its own band at the foot of the hero. The first build ran it across the middle,
+where it cut through the identity line and the award chip and made both hard to read.
+
+### The moving gradient is deliberately NOT three.js
+
+Two counter-drifting layers of blurred colour on `.hero::before` and `::after`, animated
+with transforms only, so they are GPU-composited. That means the thing actually asked for,
+colour that moves, runs on every device including phones, in both themes, for no bytes.
+three.js adds only the signal layer on top.
+
+Light theme needed its own mix percentages (`--g1..--g4`). The domain hues are dark there,
+so the same percentage that reads as a soft wash on the dark ground reads as a heavy stain
+on a near-white one.
+
+### Loading, and the size correction
+
+**The 87 KB gzipped figure in section 7 was wrong.** `three.module.min.js` imports
+`./three.core.js`, which is the UNMINIFIED core at 283 KB gzipped, so the naive CDN import
+costs about 370 KB. Measured alternatives:
+
+| Route | Requests | Gzipped |
+| --- | --- | --- |
+| `three.module.min.js` + `three.core.js` (naive) | 2 | ~370 KB |
+| `three.module.min.js` + `three.core.min.js` self-hosted | 2 | ~190 KB |
+| `jsdelivr .../three@0.187.0/+esm` | 1 | **186 KB** |
+
+The `+esm` bundle is what ships. Gating, because 186 KB is real money on a phone:
+
+- Desktop only, at or above 900px. Phones get the gradient, which is the part that carries.
+- Dynamic `import()` after first paint, so it never blocks rendering.
+- Skipped entirely under reduced motion, and when WebGL is unavailable.
+- The render loop stops whenever the hero scrolls out of view.
+- Every failure path returns silently and leaves the CSS gradient in place.
+
+**Known limitation:** SRI cannot be applied to a dynamic ESM import, so three.js is pinned
+by version but not by hash, unlike GSAP which has sha384 integrity on both files. Closing
+that would mean vendoring three into the repo (about 800 KB) to serve it same-origin.
 
 ## 6. Phase 3 (BUILT, LIVE): scroll choreography
 
@@ -197,7 +242,7 @@ homepage combined. Mitigation, required if phase 2 proceeds:
 Phases are independent so they do not disturb each other.
 
 1. **Colour, type, structure.** No dependencies. LIVE.
-2. **three.js hero.** Not approved yet, nothing built.
+2. **three.js hero.** three 0.187.0 via `+esm`, desktop only. LIVE.
 3. **Scroll choreography + mobile.** GSAP 3.15.1 pinned with SRI. LIVE.
 
 ## 9. Open questions
